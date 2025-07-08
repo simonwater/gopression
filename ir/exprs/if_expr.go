@@ -2,16 +2,16 @@ package exprs
 
 // IfExpr 条件表达式
 type IfExpr struct {
-	Condition Expr
-	Then      Expr
-	Else      Expr
+	Condition  Expr
+	ThenBranch Expr
+	ElseBranch Expr
 }
 
 func NewIfExpr(condition Expr, thenBranch Expr, elseBranch Expr) *IfExpr {
 	return &IfExpr{
-		Condition: condition,
-		Then:      thenBranch,
-		Else:      elseBranch,
+		Condition:  condition,
+		ThenBranch: thenBranch,
+		ElseBranch: elseBranch,
 	}
 }
 

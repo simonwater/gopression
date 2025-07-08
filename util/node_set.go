@@ -32,7 +32,7 @@ func (ns *NodeSet[T]) GetNodeByName(name string) *Node[T] {
 	return ns.nodesMap[name]
 }
 
-func (ns *NodeSet[T]) GetNode(index int) *Node[T] {
+func (ns *NodeSet[T]) GetNodeByIndex(index int) *Node[T] {
 	ns.validateIndex(index)
 	return ns.nodes[index]
 }
@@ -50,7 +50,7 @@ func (ns *NodeSet[T]) Size() int {
 func (ns *NodeSet[T]) String() string {
 	result := ""
 	for i := 0; i < ns.cnt; i++ {
-		node := ns.GetNode(i)
+		node := ns.GetNodeByIndex(i)
 		result += fmt.Sprintf("%d: %s(%d)\n", i, node.Name, node.Index)
 	}
 	return result

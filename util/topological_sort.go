@@ -3,12 +3,12 @@ package util
 import "fmt"
 
 type TopologicalSort struct {
-	g        Digraph
+	g        *Digraph
 	indegree []int
 	order    []int
 }
 
-func NewTopologicalSort(g Digraph) *TopologicalSort {
+func NewTopologicalSort(g *Digraph) *TopologicalSort {
 	return &TopologicalSort{
 		g:        g,
 		indegree: make([]int, g.V),

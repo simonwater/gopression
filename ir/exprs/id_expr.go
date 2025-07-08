@@ -2,11 +2,11 @@ package exprs
 
 // IdExpr 标识符表达式
 type IdExpr struct {
-	ID string
+	Id string
 }
 
 func NewIdExpr(id string) *IdExpr {
-	return &IdExpr{ID: id}
+	return &IdExpr{Id: id}
 }
 
 func (e *IdExpr) Accept(visitor Visitor) interface{} {
@@ -14,5 +14,5 @@ func (e *IdExpr) Accept(visitor Visitor) interface{} {
 }
 
 func (e *IdExpr) String() string {
-	return e.ID
+	return e.Id
 }

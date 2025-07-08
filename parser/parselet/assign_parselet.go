@@ -22,11 +22,7 @@ func (ap *AssignParselet) Parse(p IParser, lhs exprs.Expr, token values.Token) e
 
 	// 检查是否是属性赋值 (object.property = value)
 	if getExpr, ok := lhs.(*exprs.GetExpr); ok {
-		return &exprs.SetExpr{
-			Object: getExpr.Object,
-			Name:   getExpr.Name,
-			Value:  rhs,
-		}
+		return exprs.NewSetExpr(getExpr.Object, getExpr.Name, rhs)
 	}
 	return exprs.NewAssignExpr(lhs, &token, rhs)
 }
