@@ -1,5 +1,7 @@
 package values
 
+import "fmt"
+
 type ValueType byte
 
 const (
@@ -24,6 +26,17 @@ var valueTypeMap = map[byte]ValueType{
 	8: Vt_Null,
 }
 
+var valueTypeNames = map[ValueType]string{
+	Vt_Integer:  "Integer",
+	Vt_Long:     "Long",
+	Vt_Float:    "Float",
+	Vt_Double:   "Double",
+	Vt_String:   "String",
+	Vt_Boolean:  "Boolean",
+	Vt_Instance: "Instance",
+	Vt_Null:     "Null",
+}
+
 func (vt ValueType) Value() byte {
 	return byte(vt)
 }
@@ -31,4 +44,17 @@ func (vt ValueType) Value() byte {
 func ValueOf(value byte) (ValueType, bool) {
 	vt, ok := valueTypeMap[value]
 	return vt, ok
+}
+
+// Title 返回枚举的标题字符串
+func (vt ValueType) Title() string {
+	if title, ok := valueTypeNames[vt]; ok {
+		return title
+	}
+	panic(fmt.Sprintf("Unknown(%d)", vt))
+}
+
+// String 实现Stringer接口，调用Title
+func (vt ValueType) String() string {
+	return vt.Title()
 }

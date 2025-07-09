@@ -48,8 +48,8 @@ func TestToByteArrayAndValueOf(t *testing.T) {
 	b.Set(0)
 	b.Set(64)
 	b.Set(129)
-	bytes := b.ToByteArray()
-	b2 := ValueOf(bytes)
+	bytes := b.ToBytes()
+	b2 := NewBitSetFromBytes(bytes)
 	for i := 0; i < 130; i++ {
 		if b.Get(i) != b2.Get(i) {
 			t.Errorf("ValueOf/ToByteArray mismatch at bit %d", i)
@@ -57,11 +57,11 @@ func TestToByteArrayAndValueOf(t *testing.T) {
 	}
 	// Test empty
 	b3 := NewBitSet(10)
-	bytes = b3.ToByteArray()
+	bytes = b3.ToBytes()
 	if len(bytes) != 0 {
 		t.Errorf("expected empty byte array")
 	}
-	b4 := ValueOf(bytes)
+	b4 := NewBitSetFromBytes(bytes)
 	if !b4.IsEmpty() {
 		t.Errorf("expected empty BitSet")
 	}
@@ -122,7 +122,7 @@ func TestExpandTo(t *testing.T) {
 func TestValueOfPartialBytes(t *testing.T) {
 	// Test ValueOf with less than 8 bytes
 	bytes := []byte{0x01, 0x00, 0x00, 0x00}
-	b := ValueOf(bytes)
+	b := NewBitSetFromBytes(bytes)
 	if !b.Get(0) {
 		t.Errorf("expected bit 0 to be set")
 	}
@@ -135,14 +135,14 @@ func TestToByteArrayTrimming(t *testing.T) {
 	b := NewBitSet(128)
 	b.Set(0)
 	b.Set(127)
-	arr := b.ToByteArray()
+	arr := b.ToBytes()
 	// Should be 16 bytes, no trailing zeros
 	if len(arr) != 16 {
 		t.Errorf("expected 16 bytes, got %d", len(arr))
 	}
 	// trailing zeros trimmed
 	b.Clear(127)
-	arr2 := b.ToByteArray()
+	arr2 := b.ToBytes()
 	if len(arr2) != 1 {
 		t.Errorf("expected 1 byte, got %d", len(arr2))
 	}

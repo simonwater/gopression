@@ -22,7 +22,7 @@ func (c *Clock) Arity() int {
 	return 0
 }
 
-func (c *Clock) Call(arguments []values.Value) values.Value {
+func (c *Clock) Call(arguments []values.Value) (values.Value, error) {
 	t := time.Now().UnixNano() / int64(time.Millisecond)
-	return values.NewStringValue(strconv.FormatInt(t, 10))
+	return values.NewStringValue(strconv.FormatInt(t, 10)), nil
 }

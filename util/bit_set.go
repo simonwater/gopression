@@ -22,7 +22,7 @@ func NewBitSet(nbits int) *BitSet {
 }
 
 // ValueOf 从二进制数据恢复 BitSet（兼容 Java/TS 版本的 toByteArray）
-func ValueOf(bytes []byte) *BitSet {
+func NewBitSetFromBytes(bytes []byte) *BitSet {
 	nwords := (len(bytes) + 7) / 8
 	words := make([]uint64, nwords)
 	for i := 0; i < nwords; i++ {
@@ -74,7 +74,7 @@ func (b *BitSet) Clear(bitIndex int) {
 }
 
 // ToByteArray 转为二进制（兼容 Java/TS 版本的 toByteArray）
-func (b *BitSet) ToByteArray() []byte {
+func (b *BitSet) ToBytes() []byte {
 	last := len(b.words) - 1
 	for last >= 0 && b.words[last] == 0 {
 		last--

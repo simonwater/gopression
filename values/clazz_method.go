@@ -7,7 +7,7 @@ func (m *ClazzMethod) Arity() int {
 	return 0
 }
 
-func (m *ClazzMethod) Call(arguments []Value) Value {
+func (m *ClazzMethod) Call(arguments []Value) (Value, error) {
 	// TODO: 实现方法调用逻辑
-	return Value{}
+	return Value{}, nil
 }

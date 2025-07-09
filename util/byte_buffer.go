@@ -22,7 +22,7 @@ func NewByteBuffer(capacity int) *ByteBuffer {
 }
 
 // FromBytes 用已有字节创建 ByteBuffer
-func FromBytes(bytes []byte) *ByteBuffer {
+func NewBufferFromBytes(bytes []byte) *ByteBuffer {
 	bb := NewByteBuffer(len(bytes))
 	copy(bb.buf, bytes)
 	bb.position = len(bytes)

@@ -6,7 +6,7 @@ import (
 )
 
 type DefaultEnvironment struct {
-	*BaseEnvironment
+	*Environment
 	data map[string]values.Value
 }
 
@@ -14,7 +14,7 @@ func NewDefaultEnvironment() *DefaultEnvironment {
 	env := &DefaultEnvironment{
 		data: make(map[string]values.Value),
 	}
-	env.BaseEnvironment = NewBaseEnvironment(env)
+	env.Environment = NewEnvironment(env)
 	return env
 }
 func (de *DefaultEnvironment) BeforeExecute(vars []*util.Field) bool {

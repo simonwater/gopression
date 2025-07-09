@@ -22,13 +22,13 @@ func (a *Abs) Arity() int {
 	return 1
 }
 
-func (a *Abs) Call(arguments []values.Value) values.Value {
+func (a *Abs) Call(arguments []values.Value) (values.Value, error) {
 	if len(arguments) != 1 || !arguments[0].IsNumber() {
 		panic(errors.New("参数不合法！"))
 	}
 	v := arguments[0]
 	if v.IsDouble() {
-		return values.NewDoubleValue(math.Abs(v.AsDouble()))
+		return values.NewDoubleValue(math.Abs(v.AsDouble())), nil
 	}
-	return values.NewIntValue(int32(math.Abs(float64(v.AsInteger()))))
+	return values.NewIntValue(int32(math.Abs(float64(v.AsInteger())))), nil
 }

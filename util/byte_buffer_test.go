@@ -101,7 +101,7 @@ func TestPutBytesAndToBytes(t *testing.T) {
 
 func TestFromBytes(t *testing.T) {
 	src := []byte{9, 8, 7}
-	bb := FromBytes(src)
+	bb := NewBufferFromBytes(src)
 	if bb.Position() != 3 {
 		t.Errorf("expected position 3, got %d", bb.Position())
 	}
