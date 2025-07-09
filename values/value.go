@@ -34,7 +34,7 @@ func NewBooleanValue(b bool) Value {
 }
 
 // Instance 类型请自行定义
-func NewInstanceValue(inst interface{}) Value {
+func NewInstanceValue(inst Instance) Value {
 	return Value{v: inst, vt: Vt_Instance}
 }
 
@@ -188,8 +188,8 @@ func (val Value) AsString() string {
 }
 
 // Instance 类型请自行定义
-func (val Value) AsInstance() interface{} {
-	return val.v
+func (val Value) AsInstance() Instance {
+	return val.v.(Instance)
 }
 
 func (val Value) String() string {

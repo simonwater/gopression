@@ -1,4 +1,4 @@
-package gopression
+package gop
 
 import (
 	"fmt"

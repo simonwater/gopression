@@ -1,35 +1,31 @@
-package gopression
-
-import (
-	"github.com/simonwater/gopression/values"
-)
+package values
 
 type Instance struct {
 	Clazz  *Clazz
-	Fields map[string]values.Value
+	Fields map[string]Value
 }
 
 func NewInstance() *Instance {
 	return &Instance{
-		Fields: make(map[string]values.Value),
+		Fields: make(map[string]Value),
 	}
 }
 
 func NewInstanceWithClazz(clazz *Clazz) *Instance {
 	return &Instance{
 		Clazz:  clazz,
-		Fields: make(map[string]values.Value),
+		Fields: make(map[string]Value),
 	}
 }
 
-func (inst *Instance) Get(name string) (values.Value, bool) {
+func (inst *Instance) Get(name string) (Value, bool) {
 	if v, ok := inst.Fields[name]; ok {
 		return v, true
 	}
-	return values.Value{}, false
+	return Value{}, false
 }
 
-func (inst *Instance) Set(name string, value values.Value) {
+func (inst *Instance) Set(name string, value Value) {
 	inst.Fields[name] = value
 }
 
