@@ -141,6 +141,15 @@ func (bb *ByteBuffer) Get() (byte, error) {
 	return val, nil
 }
 
+func (bb *ByteBuffer) GetBytes(length int) ([]byte, error) {
+	if bb.position+length > bb.capacity {
+		return nil, errors.New("buffer underflow")
+	}
+	bytes := bb.buf[bb.position : bb.position+length]
+	bb.position += length
+	return bytes, nil
+}
+
 // GetShort 读取 int16
 func (bb *ByteBuffer) GetShort() (int16, error) {
 	if bb.position+2 > bb.capacity {

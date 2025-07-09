@@ -17,12 +17,14 @@ type ChunkReader struct {
 
 // NewChunkReader 创建新的块读取器
 func NewChunkReader(chunk *Chunk, tracer *util.Tracer) *ChunkReader {
+	codeBuffer := util.NewBufferFromBytes(chunk.Codes)
+	codeBuffer.SetPosition(0) // 重置位置到开始
 	constPool, err := NewConstantPoolFromBytes(chunk.Constants, tracer)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to create constant pool from chunk data: %v", err))
 	}
 	return &ChunkReader{
-		codeBuffer: util.NewBufferFromBytes(chunk.Codes),
+		codeBuffer: codeBuffer,
 		constPool:  constPool,
 		isVarConst: util.NewBitSetFromBytes(chunk.Vars),
 		tracer:     tracer,

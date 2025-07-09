@@ -1,11 +1,11 @@
 package values
 
 import (
-	"bytes"
-	"encoding/binary"
 	"errors"
 	"fmt"
 	"math"
+
+	"github.com/simonwater/gopression/util"
 )
 
 type Value struct {
@@ -47,8 +47,8 @@ func (val Value) GetValueType() ValueType {
 }
 
 // 反序列化
-func GetFrom(buf *bytes.Buffer) (Value, error) {
-	tag, err := buf.ReadByte()
+func GetFrom(buf *util.ByteBuffer) (Value, error) {
+	tag, err := buf.Get()
 	if err != nil {
 		return NewNullValue(), err
 	}
@@ -58,24 +58,24 @@ func GetFrom(buf *bytes.Buffer) (Value, error) {
 	}
 	switch vt {
 	case Vt_Integer:
-		var i int32
-		if err := binary.Read(buf, binary.BigEndian, &i); err != nil {
+		i, err := buf.GetInt()
+		if err != nil {
 			return NewNullValue(), err
 		}
 		return NewIntValue(i), nil
 	case Vt_Double:
-		var d float64
-		if err := binary.Read(buf, binary.BigEndian, &d); err != nil {
+		d, err := buf.GetDouble()
+		if err != nil {
 			return NewNullValue(), err
 		}
 		return NewDoubleValue(d), nil
 	case Vt_String:
-		var slen int16
-		if err := binary.Read(buf, binary.BigEndian, &slen); err != nil {
+		slen, err := buf.GetShort()
+		if err != nil {
 			return NewNullValue(), err
 		}
-		b := make([]byte, slen)
-		if _, err := buf.Read(b); err != nil {
+		b, err := buf.GetBytes(int(slen))
+		if err != nil {
 			return NewNullValue(), err
 		}
 		return NewStringValue(string(b)), nil
@@ -103,25 +103,23 @@ func (val Value) GetByteSize() (int16, error) {
 }
 
 // 序列化
-func (val Value) WriteTo(buf *bytes.Buffer) error {
+func (val Value) WriteTo(buf *util.ByteBuffer) error {
 	switch val.vt {
 	case Vt_Integer:
-		buf.WriteByte(byte(val.vt))
-		return binary.Write(buf, binary.BigEndian, int32(val.AsInteger()))
+		buf.Put(byte(val.vt))
+		buf.PutInt(val.AsInteger())
 	case Vt_Double:
-		buf.WriteByte(byte(val.vt))
-		return binary.Write(buf, binary.BigEndian, val.AsDouble())
+		buf.Put(byte(val.vt))
+		buf.PutDouble(val.AsDouble())
 	case Vt_String:
 		b := []byte(val.AsString())
-		buf.WriteByte(byte(val.vt))
-		if err := binary.Write(buf, binary.BigEndian, int16(len(b))); err != nil {
-			return err
-		}
-		_, err := buf.Write(b)
-		return err
+		buf.Put(byte(val.vt))
+		buf.PutShort(int16(len(b)))
+		buf.PutBytes(b)
 	default:
 		return errors.New("暂不支持的类型")
 	}
+	return nil
 }
 
 func (val Value) IsBoolean() bool  { return val.vt == Vt_Boolean }

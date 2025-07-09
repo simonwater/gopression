@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/simonwater/gopression/util"
 	"github.com/simonwater/gopression/values"
 )
 
@@ -136,10 +137,12 @@ func TestWriteToAndGetFrom(t *testing.T) {
 	vint := values.NewIntValue(42)
 	vdouble := values.NewDoubleValue(3.14)
 	vstr := values.NewStringValue("hi")
-	buf := bytes.NewBuffer(nil)
+	buf := util.NewByteBuffer(0)
 	vint.WriteTo(buf)
 	vdouble.WriteTo(buf)
 	vstr.WriteTo(buf)
+
+	buf.SetPosition(0) // 重置位置以便读取
 	rint, _ := values.GetFrom(buf)
 	rdouble, _ := values.GetFrom(buf)
 	rstr, _ := values.GetFrom(buf)
@@ -155,13 +158,15 @@ func TestWriteToAndGetFrom(t *testing.T) {
 }
 
 func TestGetFromUnsupportedType(t *testing.T) {
-	buf := bytes.NewBuffer(nil)
-	buf.WriteByte(99) // 非法tag
+	buf := util.NewByteBuffer(0)
+	buf.Put(99) // 非法tag
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("expected panic for unsupported type")
 		}
 	}()
+
+	buf.SetPosition(0) // 重置位置以便读取
 	_, _ = values.GetFrom(buf)
 }
 

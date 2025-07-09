@@ -1,7 +1,6 @@
 package chk
 
 import (
-	"bytes"
 	"errors"
 
 	"github.com/simonwater/gopression/util"
@@ -42,15 +41,15 @@ func NewConstantPoolFromBytes(data []byte, tracer *util.Tracer) (*ConstantPool, 
 		defer tracer.EndTimer("根据字节数组构造常量池。")
 	}
 
-	buffer := bytes.NewBuffer(data)
-	for buffer.Len() > 0 {
+	buffer := util.NewBufferFromBytes(data)
+	buffer.SetPosition(0) // 重置位置到开始
+	for buffer.Remaining() > 0 {
 		val, err := values.GetFrom(buffer)
 		if err != nil {
 			return nil, err
 		}
 		cp.constants = append(cp.constants, &val)
 	}
-
 	return cp, nil
 }
 
@@ -61,13 +60,13 @@ func (cp *ConstantPool) ToBytes() ([]byte, error) {
 		defer cp.tracer.EndTimer("常量池生成字节数组。")
 	}
 
-	buffer := new(bytes.Buffer)
+	buffer := util.NewByteBuffer(0)
 	for _, val := range cp.constants {
 		if err := val.WriteTo(buffer); err != nil {
 			return nil, err
 		}
 	}
-	return buffer.Bytes(), nil
+	return buffer.ToBytes(), nil
 }
 
 // AddConst 添加常量到池中，返回索引
