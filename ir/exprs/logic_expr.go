@@ -16,7 +16,3 @@ func NewLogicExpr(left Expr, operator *values.Token, right Expr) *LogicExpr {
 		Right:    right,
 	}
 }
-
-func (e *LogicExpr) Accept(visitor Visitor) interface{} {
-	return visitor.VisitLogic(e)
-}

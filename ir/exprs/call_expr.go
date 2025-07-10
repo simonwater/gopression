@@ -16,7 +16,3 @@ func NewCallExpr(callee Expr, args []Expr, rParen *values.Token) *CallExpr {
 		RParen: rParen,
 	}
 }
-
-func (e *CallExpr) Accept(visitor Visitor) interface{} {
-	return visitor.VisitCall(e)
-}

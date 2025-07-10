@@ -14,7 +14,3 @@ func NewIfExpr(condition Expr, thenBranch Expr, elseBranch Expr) *IfExpr {
 		ElseBranch: elseBranch,
 	}
 }
-
-func (e *IfExpr) Accept(visitor Visitor) interface{} {
-	return visitor.VisitIf(e)
-}

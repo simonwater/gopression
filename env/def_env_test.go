@@ -19,11 +19,11 @@ func TestBaseEnvironment_Get_Put(t *testing.T) {
 	env.PutDouble("testDouble", 3.14159)
 
 	assert.Equal(t, "bar", env.Get("foo").GetValue())
-	assert.Equal(t, int32(42), env.Get("baz").GetValue())
+	assert.Equal(t, 42, env.Get("baz").GetValue())
 	assert.Equal(t, true, env.Get("qux").GetValue())
 	assert.Equal(t, 3.14, env.Get("quux").GetValue())
 	assert.Equal(t, "Hello, World!", env.Get("testString").AsString())
-	assert.Equal(t, int32(100), env.Get("testInt").AsInteger())
+	assert.Equal(t, 100, int(env.Get("testInt").AsInteger()))
 	assert.Equal(t, true, env.Get("testBool").AsBoolean())
 	assert.Equal(t, 3.14159, env.Get("testDouble").AsDouble())
 	assert.Equal(t, 8, env.Size(), "环境变量数量应为8")

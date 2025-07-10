@@ -16,7 +16,3 @@ func NewBinaryExpr(left Expr, operator *values.Token, right Expr) *BinaryExpr {
 		Right:    right,
 	}
 }
-
-func (e *BinaryExpr) Accept(visitor Visitor) interface{} {
-	return visitor.VisitBinary(e)
-}

@@ -16,7 +16,3 @@ func NewSetExpr(object Expr, name *values.Token, value Expr) *SetExpr {
 		Value:  value,
 	}
 }
-
-func (e *SetExpr) Accept(visitor Visitor) interface{} {
-	return visitor.VisitSet(e)
-}

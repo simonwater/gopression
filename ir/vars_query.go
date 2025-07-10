@@ -39,14 +39,10 @@ func (vq *VarsQuery) Execute(expr exprs.Expr) *VariableSet {
 	if expr == nil {
 		return nil
 	}
-	result := expr.Accept(vq)
-	if result == nil {
-		return nil
-	}
-	return result.(*VariableSet)
+	return exprs.VisitExpr(expr, vq)
 }
 
-func (vq *VarsQuery) VisitBinary(expr *exprs.BinaryExpr) interface{} {
+func (vq *VarsQuery) VisitBinary(expr *exprs.BinaryExpr) *VariableSet {
 	result := vq.Execute(expr.Left)
 	rhs := vq.Execute(expr.Right)
 
@@ -59,7 +55,7 @@ func (vq *VarsQuery) VisitBinary(expr *exprs.BinaryExpr) interface{} {
 	return result
 }
 
-func (vq *VarsQuery) VisitLogic(expr *exprs.LogicExpr) interface{} {
+func (vq *VarsQuery) VisitLogic(expr *exprs.LogicExpr) *VariableSet {
 	result := vq.Execute(expr.Left)
 	rhs := vq.Execute(expr.Right)
 
@@ -72,19 +68,19 @@ func (vq *VarsQuery) VisitLogic(expr *exprs.LogicExpr) interface{} {
 	return result
 }
 
-func (vq *VarsQuery) VisitLiteral(expr *exprs.LiteralExpr) interface{} {
+func (vq *VarsQuery) VisitLiteral(expr *exprs.LiteralExpr) *VariableSet {
 	return nil
 }
 
-func (vq *VarsQuery) VisitUnary(expr *exprs.UnaryExpr) interface{} {
+func (vq *VarsQuery) VisitUnary(expr *exprs.UnaryExpr) *VariableSet {
 	return vq.Execute(expr.Right)
 }
 
-func (vq *VarsQuery) VisitId(expr *exprs.IdExpr) interface{} {
+func (vq *VarsQuery) VisitId(expr *exprs.IdExpr) *VariableSet {
 	return FromDepends(expr.Id)
 }
 
-func (vq *VarsQuery) VisitAssign(expr *exprs.AssignExpr) interface{} {
+func (vq *VarsQuery) VisitAssign(expr *exprs.AssignExpr) *VariableSet {
 	// 处理标识符赋值
 	if idExpr, ok := expr.Left.(*exprs.IdExpr); ok {
 		result := FromAssigns(idExpr.Id)
@@ -106,7 +102,7 @@ func (vq *VarsQuery) VisitAssign(expr *exprs.AssignExpr) interface{} {
 	return result
 }
 
-func (vq *VarsQuery) VisitCall(expr *exprs.CallExpr) interface{} {
+func (vq *VarsQuery) VisitCall(expr *exprs.CallExpr) *VariableSet {
 	result := NewVariableSet()
 	for _, arg := range expr.Args {
 		if argVars := vq.Execute(arg); argVars != nil {
@@ -116,7 +112,7 @@ func (vq *VarsQuery) VisitCall(expr *exprs.CallExpr) interface{} {
 	return result
 }
 
-func (vq *VarsQuery) VisitIf(expr *exprs.IfExpr) interface{} {
+func (vq *VarsQuery) VisitIf(expr *exprs.IfExpr) *VariableSet {
 	result := NewVariableSet()
 
 	if condVars := vq.Execute(expr.Condition); condVars != nil {
@@ -134,7 +130,7 @@ func (vq *VarsQuery) VisitIf(expr *exprs.IfExpr) interface{} {
 	return result
 }
 
-func (vq *VarsQuery) VisitGet(expr *exprs.GetExpr) interface{} {
+func (vq *VarsQuery) VisitGet(expr *exprs.GetExpr) *VariableSet {
 	names := []string{}
 	vq.visitGetRecursive(expr, &names)
 	id := strings.Join(names, ".")
@@ -151,7 +147,7 @@ func (vq *VarsQuery) visitGetRecursive(e exprs.Expr, names *[]string) {
 	}
 }
 
-func (vq *VarsQuery) VisitSet(expr *exprs.SetExpr) interface{} {
+func (vq *VarsQuery) VisitSet(expr *exprs.SetExpr) *VariableSet {
 	// 创建虚拟的GetExpr来获取属性路径
 	getExpr := exprs.NewGetExpr(expr.Object, expr.Name)
 	gets := vq.Execute(getExpr)

@@ -14,7 +14,3 @@ func NewGetExpr(object Expr, name *values.Token) *GetExpr {
 		Name:   name,
 	}
 }
-
-func (e *GetExpr) Accept(visitor Visitor) interface{} {
-	return visitor.VisitGet(e)
-}

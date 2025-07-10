@@ -18,7 +18,3 @@ func NewAssignExpr(left Expr, operator *values.Token, right Expr) *AssignExpr {
 		Right:    right,
 	}
 }
-
-func (e *AssignExpr) Accept(visitor Visitor) interface{} {
-	return visitor.VisitAssign(e)
-}

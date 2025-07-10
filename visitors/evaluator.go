@@ -72,15 +72,10 @@ func (e *Evaluator) Execute(expr exprs.Expr) values.Value {
 	if expr == nil {
 		return values.NewNullValue()
 	}
-	r := expr.Accept(e)
-	if r == nil {
-		return values.NewNullValue()
-	}
-	rr, _ := r.(values.Value)
-	return rr
+	return exprs.VisitExpr(expr, e)
 }
 
-func (e *Evaluator) VisitBinary(expr *exprs.BinaryExpr) any {
+func (e *Evaluator) VisitBinary(expr *exprs.BinaryExpr) values.Value {
 	left := e.Execute(expr.Left)
 	right := e.Execute(expr.Right)
 	r, err := values.BinaryOperate(left, right, expr.Operator.Type)
@@ -90,7 +85,7 @@ func (e *Evaluator) VisitBinary(expr *exprs.BinaryExpr) any {
 	return r
 }
 
-func (e *Evaluator) VisitLogic(expr *exprs.LogicExpr) any {
+func (e *Evaluator) VisitLogic(expr *exprs.LogicExpr) values.Value {
 	left := e.Execute(expr.Left)
 
 	if expr.Operator.Type == values.OR {
@@ -106,11 +101,11 @@ func (e *Evaluator) VisitLogic(expr *exprs.LogicExpr) any {
 	return e.Execute(expr.Right)
 }
 
-func (e *Evaluator) VisitLiteral(expr *exprs.LiteralExpr) any {
+func (e *Evaluator) VisitLiteral(expr *exprs.LiteralExpr) values.Value {
 	return *expr.Value
 }
 
-func (e *Evaluator) VisitUnary(expr *exprs.UnaryExpr) any {
+func (e *Evaluator) VisitUnary(expr *exprs.UnaryExpr) values.Value {
 	right := e.Execute(expr.Right)
 	r, err := values.PreUnaryOperate(right, expr.Operator.Type)
 	if err != nil {
@@ -119,11 +114,11 @@ func (e *Evaluator) VisitUnary(expr *exprs.UnaryExpr) any {
 	return r
 }
 
-func (e *Evaluator) VisitId(expr *exprs.IdExpr) any {
+func (e *Evaluator) VisitId(expr *exprs.IdExpr) values.Value {
 	return e.getVariableValue(expr.Id)
 }
 
-func (e *Evaluator) VisitAssign(expr *exprs.AssignExpr) any {
+func (e *Evaluator) VisitAssign(expr *exprs.AssignExpr) values.Value {
 	right := e.Execute(expr.Right)
 
 	if idExpr, ok := expr.Left.(*exprs.IdExpr); ok {
@@ -134,7 +129,7 @@ func (e *Evaluator) VisitAssign(expr *exprs.AssignExpr) any {
 	panic(errors.New("invalid assignment target"))
 }
 
-func (e *Evaluator) VisitCall(expr *exprs.CallExpr) any {
+func (e *Evaluator) VisitCall(expr *exprs.CallExpr) values.Value {
 	callee := expr.Callee
 
 	var funcName string
@@ -168,7 +163,7 @@ func (e *Evaluator) VisitCall(expr *exprs.CallExpr) any {
 	return r
 }
 
-func (e *Evaluator) VisitIf(expr *exprs.IfExpr) any {
+func (e *Evaluator) VisitIf(expr *exprs.IfExpr) values.Value {
 	cond := e.Execute(expr.Condition)
 	if cond.IsTruthy() {
 		return e.Execute(expr.ThenBranch)
@@ -178,7 +173,7 @@ func (e *Evaluator) VisitIf(expr *exprs.IfExpr) any {
 	return values.NewNullValue()
 }
 
-func (e *Evaluator) VisitGet(expr *exprs.GetExpr) any {
+func (e *Evaluator) VisitGet(expr *exprs.GetExpr) values.Value {
 	object := e.Execute(expr.Object)
 	if object.IsInstance() {
 		obj := object.AsInstance()
@@ -192,7 +187,7 @@ func (e *Evaluator) VisitGet(expr *exprs.GetExpr) any {
 	panic(errors.New("only instances have properties"))
 }
 
-func (e *Evaluator) VisitSet(expr *exprs.SetExpr) any {
+func (e *Evaluator) VisitSet(expr *exprs.SetExpr) values.Value {
 	object := e.Execute(expr.Object)
 	if !object.IsInstance() {
 		panic(errors.New("only instances have fields"))

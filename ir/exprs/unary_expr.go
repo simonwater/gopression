@@ -14,7 +14,3 @@ func NewUnaryExpr(operator *values.Token, right Expr) *UnaryExpr {
 		Right:    right,
 	}
 }
-
-func (e *UnaryExpr) Accept(visitor Visitor) interface{} {
-	return visitor.VisitUnary(e)
-}

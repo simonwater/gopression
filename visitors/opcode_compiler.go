@@ -80,7 +80,7 @@ func (c *OpCodeCompiler) execute(expr exprs.Expr) any {
 	if expr == nil {
 		return nil
 	}
-	expr.Accept(c)
+	exprs.VisitExpr(expr, c)
 	return nil
 }
 
