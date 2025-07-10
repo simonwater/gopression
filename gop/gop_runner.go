@@ -56,23 +56,23 @@ func (r *GopRunner) SetExecuteMode(executeMode ExecuteMode) {
 	r.executeMode = executeMode
 }
 
-func (r *GopRunner) Execute(expression string, ev ...env.Environment) interface{} {
+func (r *GopRunner) Execute(expression string, ev ...env.Environment) (any, error) {
 	var e env.Environment
-	if len(ev) == 0 {
+	if len(ev) == 0 || ev[0] == nil {
 		e = env.NewDefaultEnvironment()
 	} else {
 		e = ev[0]
 	}
-	result := r.executeBatch([]string{expression}, e)
-	if len(result) == 0 {
-		return nil
+	result, err := r.executeBatch([]string{expression}, e)
+	if err != nil || len(result) == 0 {
+		return nil, err
 	}
-	return result[0]
+	return result[0], nil
 }
 
-func (r *GopRunner) ExecuteBatch(expressions []string, ev ...env.Environment) []interface{} {
+func (r *GopRunner) ExecuteBatch(expressions []string, ev ...env.Environment) ([]any, error) {
 	var e env.Environment
-	if len(ev) == 0 {
+	if len(ev) == 0 || ev[0] == nil {
 		e = env.NewDefaultEnvironment()
 	} else {
 		e = ev[0]
@@ -80,14 +80,17 @@ func (r *GopRunner) ExecuteBatch(expressions []string, ev ...env.Environment) []
 	return r.executeBatch(expressions, e)
 }
 
-func (r *GopRunner) executeBatch(expressions []string, env env.Environment) []interface{} {
+func (r *GopRunner) executeBatch(expressions []string, env env.Environment) ([]any, error) {
 	tracer := r.context.GetTracer()
 	tracer.StartTimerWithMsg("开始。公式总数：%d", len(expressions))
 
-	exprs := r.Parse(expressions)
+	exprs, err := r.Parse(expressions)
+	if err != nil {
+		return nil, err
+	}
 	exprInfos := r.Analyze(exprs)
 
-	var result []interface{}
+	var result []any
 	if r.executeMode == ChunkVM {
 		chunk := r.CompileIR(exprInfos)
 		result = r.RunChunk(chunk, env)
@@ -96,10 +99,10 @@ func (r *GopRunner) executeBatch(expressions []string, env env.Environment) []in
 	}
 
 	tracer.EndTimer("结束。")
-	return result
+	return result, nil
 }
 
-func (r *GopRunner) RunIR(exprInfos []*ir.ExprInfo, ev env.Environment) []interface{} {
+func (r *GopRunner) RunIR(exprInfos []*ir.ExprInfo, ev env.Environment) []any {
 	tracer := r.context.GetTracer()
 	tracer.StartTimer()
 
@@ -126,7 +129,7 @@ func (r *GopRunner) RunIR(exprInfos []*ir.ExprInfo, ev env.Environment) []interf
 
 	tracer.StartTimerWithMsg("执行")
 	n := len(exprInfos)
-	result := make([]interface{}, n)
+	result := make([]any, n)
 
 	for _, info := range exprInfos {
 		expr := info.GetExpr()
@@ -139,7 +142,7 @@ func (r *GopRunner) RunIR(exprInfos []*ir.ExprInfo, ev env.Environment) []interf
 	return result
 }
 
-func (r *GopRunner) RunChunk(chunk *chk.Chunk, ev env.Environment) []interface{} {
+func (r *GopRunner) RunChunk(chunk *chk.Chunk, ev env.Environment) []any {
 	tracer := r.context.GetTracer()
 	tracer.StartTimer()
 
@@ -161,7 +164,7 @@ func (r *GopRunner) RunChunk(chunk *chk.Chunk, ev env.Environment) []interface{}
 	vm := exec.NewVM(tracer)
 	exResults, _ := vm.ExecuteWithReader(chunkReader, ev)
 
-	result := make([]interface{}, len(exResults))
+	result := make([]any, len(exResults))
 	for _, res := range exResults {
 		result[res.GetIndex()] = res.GetResult().GetValue()
 	}
@@ -170,18 +173,22 @@ func (r *GopRunner) RunChunk(chunk *chk.Chunk, ev env.Environment) []interface{}
 	return result
 }
 
-func (r *GopRunner) Parse(expressions []string) []exprs.Expr {
+func (r *GopRunner) Parse(expressions []string) ([]exprs.Expr, error) {
 	tracer := r.context.GetTracer()
 	tracer.StartTimerWithMsg("解析")
 
 	result := make([]exprs.Expr, 0, len(expressions))
 	for _, src := range expressions {
 		parser := parser.NewParser(src)
-		result = append(result, parser.Parse())
+		expr, err := parser.Parse()
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, expr)
 	}
 
 	tracer.EndTimer("完成表达式解析。")
-	return result
+	return result, nil
 }
 
 func (r *GopRunner) Analyze(exprs []exprs.Expr) []*ir.ExprInfo {
@@ -200,16 +207,19 @@ func (r *GopRunner) Analyze(exprs []exprs.Expr) []*ir.ExprInfo {
 	return sortedInfos
 }
 
-func (r *GopRunner) CompileSource(expressions []string) *chk.Chunk {
+func (r *GopRunner) CompileSource(expressions []string) (*chk.Chunk, error) {
 	tracer := r.context.GetTracer()
 	tracer.StartTimerWithMsg("编译源码")
 
-	exprs := r.Parse(expressions)
+	exprs, err := r.Parse(expressions)
+	if err != nil {
+		return nil, err
+	}
 	exprInfos := r.Analyze(exprs)
 	chunk := r.CompileIR(exprInfos)
 
 	tracer.EndTimer("完成表达式编译。")
-	return chunk
+	return chunk, nil
 }
 
 func (r *GopRunner) CompileIR(exprInfos []*ir.ExprInfo) *chk.Chunk {

@@ -9,7 +9,7 @@ import (
 
 // Parser 解析器接口（需在别处实现）
 type IParser interface {
-	Parse() exprs.Expr
+	Parse() (exprs.Expr, error)
 	ExpressionPrec(minPrec int) exprs.Expr
 	Match(types ...values.TokenType) bool
 	Consume(expected values.TokenType, message string) values.Token

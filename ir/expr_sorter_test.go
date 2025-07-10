@@ -76,7 +76,7 @@ func TestExprSorter_ShouldSortMixedFormulas(t *testing.T) {
 	environment.PutInt("m", 2)
 	environment.PutInt("n", 4)
 	environment.PutInt("w", 6)
-	result := runner.ExecuteBatch(srcs, environment)
+	result, _ := runner.ExecuteBatch(srcs, environment)
 	assert.NotNil(t, result)
 	assert.Equal(t, 6, len(result))
 	assert.Equal(t, 270, environment.Get("x").GetValue())
@@ -99,7 +99,10 @@ func parse(srcs []string, context *ir.GopContext) []exprs.Expr {
 	result := make([]exprs.Expr, 0, len(srcs))
 	for _, src := range srcs {
 		parser := parser.NewParser(src)
-		expr := parser.Parse()
+		expr, err := parser.Parse()
+		if err != nil {
+			panic(err)
+		}
 		result = append(result, expr)
 	}
 	tracer.EndTimer("完成表达式解析。")

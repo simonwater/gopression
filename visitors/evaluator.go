@@ -9,6 +9,7 @@ import (
 	"github.com/simonwater/gopression/ir"
 	"github.com/simonwater/gopression/ir/exprs"
 	"github.com/simonwater/gopression/parser"
+	"github.com/simonwater/gopression/util"
 	"github.com/simonwater/gopression/values"
 )
 
@@ -24,24 +25,6 @@ func NewEvaluator(env env.Environment) *Evaluator {
 	return e
 }
 
-func safeExecute(fn func() values.Value) (result values.Value, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			switch v := r.(type) {
-			case error:
-				err = v
-			case string:
-				err = errors.New(v)
-			default:
-				err = fmt.Errorf("panic: %v", r)
-			}
-		}
-	}()
-
-	result = fn()
-	return
-}
-
 func (e *Evaluator) ExecuteAll(exprs []exprs.Expr) ([]values.Value, error) {
 	if len(exprs) == 0 {
 		return nil, nil
@@ -49,7 +32,7 @@ func (e *Evaluator) ExecuteAll(exprs []exprs.Expr) ([]values.Value, error) {
 
 	results := make([]values.Value, len(exprs))
 	for i, expr := range exprs {
-		r, err := safeExecute(func() values.Value {
+		r, err := util.SafeExecute(func() values.Value {
 			return e.Execute(expr)
 		})
 		if err != nil {
@@ -64,9 +47,12 @@ func (e *Evaluator) ExecuteSrc(src string) (values.Value, error) {
 	if src == "" {
 		return values.NewNullValue(), nil
 	}
-	return safeExecute(func() values.Value {
-		p := parser.NewParser(src)
-		expr := p.Parse()
+	p := parser.NewParser(src)
+	expr, err := p.Parse()
+	if err != nil {
+		return values.NewNullValue(), nil
+	}
+	return util.SafeExecute(func() values.Value {
 		return e.Execute(expr)
 	})
 

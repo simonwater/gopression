@@ -10,7 +10,11 @@ import (
 
 func parseExpr(src string) exprs.Expr {
 	p := parser.NewParser(src)
-	return p.Parse()
+	r, err := p.Parse()
+	if err != nil {
+		panic(err)
+	}
+	return r
 }
 
 func TestParseNumberLiteral(t *testing.T) {
@@ -72,5 +76,11 @@ func TestParseGroupedExpression(t *testing.T) {
 func TestParseInvalidInput(t *testing.T) {
 	assert.Panics(t, func() {
 		parseExpr("@")
+	})
+	assert.Panics(t, func() {
+		parseExpr("a * (b + c")
+	})
+	assert.Panics(t, func() {
+		parseExpr("a * b + c)")
 	})
 }

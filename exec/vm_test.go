@@ -18,7 +18,10 @@ func execute(src string, e ...*env.DefaultEnvironment) any {
 		environment = env.NewDefaultEnvironment()
 	}
 	p := parser.NewParser(src)
-	expr := p.Parse()
+	expr, err := p.Parse()
+	if err != nil {
+		panic(err)
+	}
 
 	tr := util.NewTracer()
 	compiler := visitors.NewOpCodeCompiler(tr)

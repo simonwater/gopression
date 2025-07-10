@@ -5,6 +5,7 @@ import (
 
 	"github.com/simonwater/gopression/ir/exprs"
 	"github.com/simonwater/gopression/parser"
+	"github.com/simonwater/gopression/util"
 )
 
 type VarsQuery struct {
@@ -17,26 +18,37 @@ func NewVarsQuery() *VarsQuery {
 	return vq
 }
 
-func (vq *VarsQuery) ExecuteAll(exprs []exprs.Expr) *VariableSet {
+func (vq *VarsQuery) ExecuteAll(exprs []exprs.Expr) (*VariableSet, error) {
 	if len(exprs) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	result := NewVariableSet()
 	for _, expr := range exprs {
-		result.Combine(vq.Execute(expr))
+		r, err := util.SafeExecute(func() *VariableSet {
+			return vq.Execute(expr)
+		})
+		if err != nil {
+			return nil, err
+		}
+		result.Combine(r)
 	}
-	return result
+	return result, nil
 }
 
-func (vq *VarsQuery) ExecuteSrc(src string) *VariableSet {
+func (vq *VarsQuery) ExecuteSrc(src string) (*VariableSet, error) {
 	if strings.TrimSpace(src) == "" {
-		return nil
+		return nil, nil
 	}
 
 	p := parser.NewParser(src)
-	expr := p.Parse()
-	return vq.Execute(expr)
+	expr, err := p.Parse()
+	if err != nil {
+		return nil, err
+	}
+	return util.SafeExecute(func() *VariableSet {
+		return vq.Execute(expr)
+	})
 }
 
 func (vq *VarsQuery) Execute(expr exprs.Expr) *VariableSet {

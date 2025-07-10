@@ -3,6 +3,7 @@ package parser
 import (
 	"github.com/simonwater/gopression/ir/exprs"
 	"github.com/simonwater/gopression/parser/parselet"
+	"github.com/simonwater/gopression/util"
 	"github.com/simonwater/gopression/values"
 )
 
@@ -58,12 +59,14 @@ func NewParser(source string) *Parser {
 // ================== 接口方法实现 ==================
 
 // Parse 解析整个表达式
-func (p *Parser) Parse() exprs.Expr {
-	result := p.ExpressionPrec(PREC_NONE)
+func (p *Parser) Parse() (exprs.Expr, error) {
+	result, err := util.SafeExecute(func() exprs.Expr {
+		return p.ExpressionPrec(PREC_NONE)
+	})
 	if p.Peek().Type != values.EOF {
-		panic(parselet.NewLoxParseError(p.Peek(), "unknown token: "+p.Peek().Lexeme))
+		return nil, parselet.NewLoxParseError(p.Peek(), "unknown token: "+p.Peek().Lexeme)
 	}
-	return result
+	return result, err
 }
 
 // ExpressionPrec 解析操作符优先级大于minPrec的子表达式
