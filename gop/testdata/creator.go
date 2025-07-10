@@ -12,7 +12,7 @@ import (
 )
 
 // 获取表达式列表
-func GetExpressions(t *testing.T, formulaBatches int) []string {
+func GetExpressions(formulaBatches int) []string {
 	lines := make([]string, 0, formulaBatches*5)
 
 	fml := "A! = 1 + 2 * 3 - 6 - 1 + B! + C! * (D! - E! + 10 ** 2 / 5 - (12 + 8)) - F! * G! +  100 / 5 ** 2 ** 1"
@@ -36,7 +36,7 @@ func GetExpressions(t *testing.T, formulaBatches int) []string {
 }
 
 // 创建环境并设置变量
-func GetEnv(t *testing.T, formulaBatches int) env.Environment {
+func GetEnv(formulaBatches int) env.Environment {
 	ev := env.NewDefaultEnvironment()
 
 	for i := 0; i < formulaBatches; i++ {

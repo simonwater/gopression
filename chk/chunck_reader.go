@@ -65,6 +65,10 @@ func (cr *ChunkReader) ReadConst(index int) (*values.Value, error) {
 
 // GetVariables 获取所有变量名
 func (cr *ChunkReader) GetVariables() []string {
+	if cr.tracer != nil {
+		cr.tracer.StartTimer()
+		defer cr.tracer.EndTimer("构造变量列表")
+	}
 	allConsts := cr.constPool.GetAllConsts()
 	result := make([]string, 10)
 

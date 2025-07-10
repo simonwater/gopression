@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	ser_formulaBatches = 10000
+	ser_formulaBatches = 1000
 	ser_testDirectory  = "SerializeTest"
 )
 
@@ -24,7 +24,7 @@ func TestChunkSerialization(t *testing.T) {
 
 func chunkSerializeTest(t *testing.T) {
 	// 创建表达式列表
-	lines := testdata.GetExpressions(t, ser_formulaBatches)
+	lines := testdata.GetExpressions(ser_formulaBatches)
 	fmt.Printf("表达式总数：%d", len(lines))
 
 	runner := gop.NewGopRunner()
@@ -58,6 +58,8 @@ func chunkSerializeTest(t *testing.T) {
 	elapsed = time.Since(start)
 	fmt.Printf("字节码已序列化到文件：%s 耗时: %s", fileName, elapsed)
 
+	fileutil.SerializeJSON(exprInfos, fileutil.GetTestPath(ser_testDirectory, "ExprInfos.json"), false)
+
 	// 反序列化字节码
 	start = time.Now()
 	deserializedChunk, err := fileutil.DeserializeObject[chk.Chunk](filePath)
@@ -68,7 +70,7 @@ func chunkSerializeTest(t *testing.T) {
 	// 执行反序列化的字节码
 	fmt.Printf("开始执行字节码：")
 	start = time.Now()
-	env := testdata.GetEnv(t, ser_formulaBatches)
+	env := testdata.GetEnv(ser_formulaBatches)
 
 	_ = runner.RunChunk(&deserializedChunk, env)
 
@@ -79,7 +81,7 @@ func chunkSerializeTest(t *testing.T) {
 	// 执行语法树（IR）作为对比
 	fmt.Printf("开始执行语法树")
 	start = time.Now()
-	env = testdata.GetEnv(t, ser_formulaBatches)
+	env = testdata.GetEnv(ser_formulaBatches)
 
 	_ = runner.RunIR(exprInfos, env)
 
