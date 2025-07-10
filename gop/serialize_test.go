@@ -18,19 +18,19 @@ const (
 )
 
 func TestChunkSerialization(t *testing.T) {
-	fmt.Printf("序列化反序列化测试：")
+	fmt.Printf("序列化反序列化测试：\n")
 	chunkSerializeTest(t)
 }
 
 func chunkSerializeTest(t *testing.T) {
 	// 创建表达式列表
 	lines := testdata.GetExpressions(ser_formulaBatches)
-	fmt.Printf("表达式总数：%d", len(lines))
+	fmt.Printf("表达式总数：%d\n", len(lines))
 
 	runner := gop.NewGopRunner()
 
 	// 解析和分析表达式
-	fmt.Printf("开始解析和分析：")
+	fmt.Printf("开始解析和分析：\n")
 	start := time.Now()
 	exprs, err := runner.Parse(lines)
 	require.NoError(t, err, "解析失败")
@@ -39,7 +39,7 @@ func chunkSerializeTest(t *testing.T) {
 	require.NoError(t, err, "分析失败")
 
 	elapsed := time.Since(start)
-	fmt.Printf("中间结果生成完成。耗时: %s", elapsed)
+	fmt.Printf("中间结果生成完成。耗时: %s\n", elapsed)
 
 	// 编译为字节码
 	runner.SetTrace(true)
@@ -47,7 +47,7 @@ func chunkSerializeTest(t *testing.T) {
 
 	// 序列化字节码
 	chunkSize := chunk.GetByteSize()
-	fmt.Printf("开始进行字节码序列化反序列化，字节码大小(KB): %d", chunkSize/1024)
+	fmt.Printf("开始进行字节码序列化反序列化，字节码大小(KB): %d\n", chunkSize/1024)
 
 	start = time.Now()
 	fileName := "Chunks.gob"
@@ -56,7 +56,7 @@ func chunkSerializeTest(t *testing.T) {
 	err = fileutil.SerializeObject(chunk, filePath)
 	require.NoError(t, err, "序列化失败")
 	elapsed = time.Since(start)
-	fmt.Printf("字节码已序列化到文件：%s 耗时: %s", fileName, elapsed)
+	fmt.Printf("字节码已序列化到文件：%s 耗时: %s\n", fileName, elapsed)
 
 	fileutil.SerializeJSON(exprInfos, fileutil.GetTestPath(ser_testDirectory, "ExprInfos.json"), false)
 
@@ -65,10 +65,10 @@ func chunkSerializeTest(t *testing.T) {
 	deserializedChunk, err := fileutil.DeserializeObject[chk.Chunk](filePath)
 	require.NoError(t, err, "反序列化失败")
 	elapsed = time.Since(start)
-	fmt.Printf("完成从文件反序列化字节码。耗时: %s", elapsed)
+	fmt.Printf("完成从文件反序列化字节码。耗时: %s\n", elapsed)
 
 	// 执行反序列化的字节码
-	fmt.Printf("开始执行字节码：")
+	fmt.Printf("开始执行字节码：\n")
 	start = time.Now()
 	env := testdata.GetEnv(ser_formulaBatches)
 
@@ -76,10 +76,10 @@ func chunkSerializeTest(t *testing.T) {
 
 	testdata.CheckValues(t, env, ser_formulaBatches)
 	elapsed = time.Since(start)
-	fmt.Printf("字节码执行完成。耗时: %s", elapsed)
+	fmt.Printf("字节码执行完成。耗时: %s\n", elapsed)
 
 	// 执行语法树（IR）作为对比
-	fmt.Printf("开始执行语法树")
+	fmt.Printf("开始执行语法树\n")
 	start = time.Now()
 	env = testdata.GetEnv(ser_formulaBatches)
 
@@ -87,7 +87,7 @@ func chunkSerializeTest(t *testing.T) {
 
 	testdata.CheckValues(t, env, ser_formulaBatches)
 	elapsed = time.Since(start)
-	fmt.Printf("语法树执行完成。耗时: %s", elapsed)
+	fmt.Printf("语法树执行完成。耗时: %s\n", elapsed)
 
-	fmt.Printf("==========")
+	fmt.Printf("==========\n")
 }

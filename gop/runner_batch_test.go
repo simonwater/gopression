@@ -63,7 +63,7 @@ func TestBatchRunner_CompileChunk(t *testing.T) {
 
 // 测试字节码直接执行
 func TestBatchRunner_Chunk(t *testing.T) {
-	fmt.Printf("批量运算测试(字节码直接执行)")
+	fmt.Printf("批量运算测试(字节码直接执行)\n")
 	start := time.Now()
 
 	// 反序列化字节码
@@ -73,7 +73,7 @@ func TestBatchRunner_Chunk(t *testing.T) {
 	require.NoError(t, err, "反序列化字节码失败")
 
 	elapsed := time.Since(start)
-	fmt.Printf("完成从文件反序列化字节码。耗时: %s", elapsed)
+	fmt.Printf("完成从文件反序列化字节码。耗时: %s\n", elapsed)
 
 	runner := gop.NewGopRunner()
 	runner.SetTrace(true)
@@ -83,5 +83,5 @@ func TestBatchRunner_Chunk(t *testing.T) {
 	require.NoError(t, err, "执行字节码失败")
 
 	testdata.CheckValues(t, env, gop_formulaBatches)
-	fmt.Printf("==========")
+	fmt.Printf("==========\n")
 }
