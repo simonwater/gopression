@@ -39,6 +39,9 @@ func NewInstanceValue(inst Instance) Value {
 }
 
 func (val Value) GetValue() interface{} {
+	if val.vt == Vt_Integer {
+		return int(val.v.(int32))
+	}
 	return val.v
 }
 

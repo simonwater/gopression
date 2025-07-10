@@ -33,9 +33,6 @@ func execute(src string, e ...*env.DefaultEnvironment) any {
 	}
 	r := exResults[0].GetResult()
 	if r != nil {
-		if r.IsInteger() {
-			return int(r.AsInteger())
-		}
 		return r.GetValue()
 	}
 	return nil

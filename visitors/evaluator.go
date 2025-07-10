@@ -76,7 +76,8 @@ func (e *Evaluator) Execute(expr exprs.Expr) values.Value {
 	if r == nil {
 		return values.NewNullValue()
 	}
-	return r.(values.Value)
+	rr, _ := r.(values.Value)
+	return rr
 }
 
 func (e *Evaluator) VisitBinary(expr *exprs.BinaryExpr) any {
@@ -106,7 +107,7 @@ func (e *Evaluator) VisitLogic(expr *exprs.LogicExpr) any {
 }
 
 func (e *Evaluator) VisitLiteral(expr *exprs.LiteralExpr) any {
-	return expr.Value
+	return *expr.Value
 }
 
 func (e *Evaluator) VisitUnary(expr *exprs.UnaryExpr) any {
