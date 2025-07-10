@@ -1,0 +1,87 @@
+package gop_test
+
+import (
+	"fmt"
+	"testing"
+	"time"
+
+	"github.com/simonwater/gopression/chk"
+	"github.com/simonwater/gopression/gop"
+	"github.com/simonwater/gopression/gop/testdata"
+	fileutil "github.com/simonwater/gopression/util/files"
+	"github.com/stretchr/testify/require"
+)
+
+const (
+	formulaBatches = 10000
+	testDirectory  = "BatchRunnerTest"
+)
+
+// 测试解析执行
+func TestBatchRunner_IR(t *testing.T) {
+	fmt.Printf("批量运算测试(解析执行)")
+	lines := testdata.GetExpressions(t, formulaBatches)
+	runner := gop.NewGopRunner()
+	runner.SetExecuteMode(gop.SyntaxTree)
+	runner.SetTrace(true)
+	env := testdata.GetEnv(t, formulaBatches)
+
+	_, err := runner.ExecuteBatch(lines, env)
+	require.NoError(t, err, "批量执行失败")
+
+	testdata.CheckValues(t, env, formulaBatches)
+	fmt.Printf("==========")
+}
+
+// 测试编译+字节码执行
+func TestBatchRunner_CompileChunk(t *testing.T) {
+	fmt.Printf("批量运算测试(编译+字节码执行)")
+	start := time.Now()
+
+	lines := testdata.GetExpressions(t, formulaBatches)
+	runner := gop.NewGopRunner()
+	runner.SetTrace(true)
+
+	chunk, err := runner.CompileSource(lines)
+	require.NoError(t, err, "编译失败")
+
+	env := testdata.GetEnv(t, formulaBatches)
+	_ = runner.RunChunk(chunk, env)
+
+	testdata.CheckValues(t, env, formulaBatches)
+
+	elapsed := time.Since(start)
+	fmt.Printf("总耗时: %s", elapsed)
+	fmt.Printf("==========")
+
+	// 序列化字节码
+	fileName := "Chunks.gob"
+	filePath := fileutil.GetTestPath(testDirectory, fileName)
+	err = fileutil.SerializeObject(chunk, filePath)
+	require.NoError(t, err, "序列化字节码失败")
+}
+
+// 测试字节码直接执行
+func TestBatchRunner_Chunk(t *testing.T) {
+	fmt.Printf("批量运算测试(字节码直接执行)")
+	start := time.Now()
+
+	// 反序列化字节码
+	fileName := "Chunks.gob"
+	filePath := fileutil.GetTestPath(testDirectory, fileName)
+	chunk, err := fileutil.DeserializeObject[chk.Chunk](filePath)
+	require.NoError(t, err, "反序列化字节码失败")
+
+	elapsed := time.Since(start)
+	fmt.Printf("完成从文件反序列化字节码。耗时: %s", elapsed)
+
+	runner := gop.NewGopRunner()
+	runner.SetTrace(true)
+	env := testdata.GetEnv(t, formulaBatches)
+
+	_ = runner.RunChunk(&chunk, env)
+	require.NoError(t, err, "执行字节码失败")
+
+	testdata.CheckValues(t, env, formulaBatches)
+	fmt.Printf("==========")
+}

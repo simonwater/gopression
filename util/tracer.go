@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"time"
 )
@@ -21,7 +20,7 @@ type Tracer struct {
 func NewTracer() *Tracer {
 	return NewTracerWithPrinter(func(message string) {
 		if message != "" {
-			fmt.Fprintln(os.Stdout, message)
+			fmt.Println(message)
 		}
 	})
 }

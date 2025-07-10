@@ -30,9 +30,9 @@ func TestVarsQuery_FormulaWithInstance(t *testing.T) {
 }
 
 func TestVarsQuery_LargeNumberOfFormulas(t *testing.T) {
-	t.Log("批量查询变量测试：")
+	fmt.Println("批量查询变量测试：")
 	cnt := 10000
-	t.Logf("公式总数：%d", cnt)
+	fmt.Printf("公式总数：%d", cnt)
 	lines := make([]string, 0, cnt)
 	fml := "A! = 1 + 2 * 3 - 6 - 1 + B! + C! * (D! - E! + 10 ** 2 / 5 - (12 + 8)) - F! * G! +  100 / 5 ** 2 ** 1"
 	for i := 1; i <= cnt; i++ {
@@ -46,7 +46,7 @@ func TestVarsQuery_LargeNumberOfFormulas(t *testing.T) {
 	for _, expr := range lines {
 		result, _ = varQuery.ExecuteSrc(expr)
 	}
-	t.Log(result)
-	t.Logf("time: %dms", time.Since(start).Milliseconds())
-	t.Log("==========")
+	fmt.Println(result)
+	fmt.Printf("time: %dms", time.Since(start).Milliseconds())
+	fmt.Println("==========")
 }
