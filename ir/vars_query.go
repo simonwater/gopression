@@ -7,10 +7,14 @@ import (
 	"github.com/simonwater/gopression/parser"
 )
 
-type VarsQuery struct{}
+type VarsQuery struct {
+	*BaseVisitor[*VariableSet]
+}
 
 func NewVarsQuery() *VarsQuery {
-	return &VarsQuery{}
+	vq := &VarsQuery{}
+	vq.BaseVisitor = NewBaseVisitor(vq)
+	return vq
 }
 
 func (vq *VarsQuery) ExecuteAll(exprs []exprs.Expr) *VariableSet {
@@ -39,7 +43,7 @@ func (vq *VarsQuery) Execute(expr exprs.Expr) *VariableSet {
 	if expr == nil {
 		return nil
 	}
-	return exprs.VisitExpr(expr, vq)
+	return vq.Accept(expr)
 }
 
 func (vq *VarsQuery) VisitBinary(expr *exprs.BinaryExpr) *VariableSet {

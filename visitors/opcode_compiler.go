@@ -13,6 +13,7 @@ const ADDRESS_SIZE = 4 // 地址大小（4字节）
 
 // OpCodeCompiler 字节码编译器
 type OpCodeCompiler struct {
+	*ir.BaseVisitor[any]
 	chunkWriter *chk.ChunkWriter
 	varSet      map[string]bool
 	tracer      *util.Tracer
@@ -20,18 +21,19 @@ type OpCodeCompiler struct {
 
 // NewOpCodeCompiler 创建新的编译器
 func NewOpCodeCompiler(tracer *util.Tracer, chunkCapacity ...int) *OpCodeCompiler {
-	compiler := &OpCodeCompiler{
+	c := &OpCodeCompiler{
 		varSet: make(map[string]bool),
 		tracer: tracer,
 	}
+	c.BaseVisitor = ir.NewBaseVisitor(c)
 
 	if len(chunkCapacity) > 0 && chunkCapacity[0] > 0 {
-		compiler.chunkWriter = chk.NewChunkWriter(chunkCapacity[0], tracer)
+		c.chunkWriter = chk.NewChunkWriter(chunkCapacity[0], tracer)
 	} else {
-		compiler.chunkWriter = chk.NewChunkWriter(0, tracer)
+		c.chunkWriter = chk.NewChunkWriter(0, tracer)
 	}
 
-	return compiler
+	return c
 }
 
 // BeginCompile 开始编译
@@ -80,8 +82,7 @@ func (c *OpCodeCompiler) execute(expr exprs.Expr) any {
 	if expr == nil {
 		return nil
 	}
-	exprs.VisitExpr(expr, c)
-	return nil
+	return c.Accept(expr)
 }
 
 // 实现表达式访问者接口

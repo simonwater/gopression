@@ -6,6 +6,7 @@ import (
 
 	"github.com/simonwater/gopression/env"
 	"github.com/simonwater/gopression/functions/funmgr"
+	"github.com/simonwater/gopression/ir"
 	"github.com/simonwater/gopression/ir/exprs"
 	"github.com/simonwater/gopression/parser"
 	"github.com/simonwater/gopression/values"
@@ -13,11 +14,14 @@ import (
 
 // Evaluator 表达式求值器
 type Evaluator struct {
+	*ir.BaseVisitor[values.Value]
 	env env.Environment
 }
 
 func NewEvaluator(env env.Environment) *Evaluator {
-	return &Evaluator{env: env}
+	e := &Evaluator{env: env}
+	e.BaseVisitor = ir.NewBaseVisitor(e)
+	return e
 }
 
 func safeExecute(fn func() values.Value) (result values.Value, err error) {
@@ -72,7 +76,7 @@ func (e *Evaluator) Execute(expr exprs.Expr) values.Value {
 	if expr == nil {
 		return values.NewNullValue()
 	}
-	return exprs.VisitExpr(expr, e)
+	return e.Accept(expr)
 }
 
 func (e *Evaluator) VisitBinary(expr *exprs.BinaryExpr) values.Value {
