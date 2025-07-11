@@ -22,7 +22,7 @@ var prefixParselets = map[values.TokenType]parselet.PrefixParselet{
 var infixParselets = map[values.TokenType]parselet.InfixParselet{
 	values.PLUS:          parselet.NewBinaryParselet(PREC_TERM),
 	values.MINUS:         parselet.NewBinaryParselet(PREC_TERM),
-	values.PERCENT:       parselet.NewBinaryParselet(PREC_TERM),
+	values.PERCENT:       parselet.NewBinaryParselet(PREC_FACTOR),
 	values.STAR:          parselet.NewBinaryParselet(PREC_FACTOR),
 	values.SLASH:         parselet.NewBinaryParselet(PREC_FACTOR),
 	values.STARSTAR:      parselet.NewRightCombineBinaryParselet(PREC_POWER),

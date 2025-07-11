@@ -19,8 +19,8 @@ type Evaluator struct {
 	env env.Environment
 }
 
-func NewEvaluator(env env.Environment) *Evaluator {
-	e := &Evaluator{env: env}
+func NewEvaluator(ev env.Environment) *Evaluator {
+	e := &Evaluator{env: ev}
 	e.BaseVisitor = ir.NewBaseVisitor(e)
 	return e
 }

@@ -8,10 +8,9 @@ const (
 	PREC_EQUALITY   = 4  // == !=
 	PREC_COMPARISON = 5  // < > <= >=
 	PREC_TERM       = 6  // + -
-	PREC_MODE       = 7  // %
-	PREC_FACTOR     = 8  // * /
-	PREC_POWER      = 9  // **
-	PREC_UNARY      = 10 // ! -
-	PREC_CALL       = 11 // . ()
-	PREC_PRIMARY    = 12 // number, string, id
+	PREC_FACTOR     = 7  // * / %
+	PREC_POWER      = 8  // **
+	PREC_UNARY      = 9  // ! -
+	PREC_CALL       = 10 // . ()
+	PREC_PRIMARY    = 11 // number, string, id
 )
