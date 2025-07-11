@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/simonwater/gopression/chk"
 	"github.com/simonwater/gopression/gop"
 	"github.com/simonwater/gopression/gop/testdata"
 	fileutil "github.com/simonwater/gopression/util/files"
@@ -55,9 +54,9 @@ func TestBatchRunner_CompileChunk(t *testing.T) {
 	fmt.Printf("==========")
 
 	// 序列化字节码
-	fileName := "Chunks.gob"
+	fileName := "Chunks.xp"
 	filePath := fileutil.GetTestPath(gop_testDirectory, fileName)
-	err = fileutil.SerializeObject(chunk, filePath)
+	err = writeChkFile(chunk, filePath)
 	require.NoError(t, err, "序列化字节码失败")
 }
 
@@ -67,9 +66,9 @@ func TestBatchRunner_Chunk(t *testing.T) {
 	start := time.Now()
 
 	// 反序列化字节码
-	fileName := "Chunks.gob"
+	fileName := "Chunks.xp"
 	filePath := fileutil.GetTestPath(gop_testDirectory, fileName)
-	chunk, err := fileutil.DeserializeObject[chk.Chunk](filePath)
+	chunk, err := readChkFile(filePath)
 	require.NoError(t, err, "反序列化字节码失败")
 
 	elapsed := time.Since(start)
@@ -79,7 +78,7 @@ func TestBatchRunner_Chunk(t *testing.T) {
 	runner.SetTrace(true)
 	env := testdata.GetEnv(gop_formulaBatches)
 
-	_ = runner.RunChunk(&chunk, env)
+	_ = runner.RunChunk(chunk, env)
 	require.NoError(t, err, "执行字节码失败")
 
 	testdata.CheckValues(t, env, gop_formulaBatches)

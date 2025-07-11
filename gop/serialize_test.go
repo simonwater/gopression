@@ -2,6 +2,7 @@ package gop_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -50,19 +51,17 @@ func chunkSerializeTest(t *testing.T) {
 	fmt.Printf("开始进行字节码序列化反序列化，字节码大小(KB): %d\n", chunkSize/1024)
 
 	start = time.Now()
-	fileName := "Chunks.gob"
+	fileName := "Chunks.xp"
 	filePath := fileutil.GetTestPath(ser_testDirectory, fileName)
 
-	err = fileutil.SerializeObject(chunk, filePath)
+	err = writeChkFile(chunk, filePath)
 	require.NoError(t, err, "序列化失败")
 	elapsed = time.Since(start)
 	fmt.Printf("字节码已序列化到文件：%s 耗时: %s\n", fileName, elapsed)
 
-	fileutil.SerializeJSON(exprInfos, fileutil.GetTestPath(ser_testDirectory, "ExprInfos.json"), false)
-
 	// 反序列化字节码
 	start = time.Now()
-	deserializedChunk, err := fileutil.DeserializeObject[chk.Chunk](filePath)
+	deserializedChunk, err := readChkFile(filePath)
 	require.NoError(t, err, "反序列化失败")
 	elapsed = time.Since(start)
 	fmt.Printf("完成从文件反序列化字节码。耗时: %s\n", elapsed)
@@ -72,7 +71,7 @@ func chunkSerializeTest(t *testing.T) {
 	start = time.Now()
 	env := testdata.GetEnv(ser_formulaBatches)
 
-	_ = runner.RunChunk(&deserializedChunk, env)
+	_ = runner.RunChunk(deserializedChunk, env)
 
 	testdata.CheckValues(t, env, ser_formulaBatches)
 	elapsed = time.Since(start)
@@ -90,4 +89,19 @@ func chunkSerializeTest(t *testing.T) {
 	fmt.Printf("语法树执行完成。耗时: %s\n", elapsed)
 
 	fmt.Printf("==========\n")
+}
+
+func writeChkFile(chunk *chk.Chunk, filePath string) error {
+	data := chunk.ToBytes()
+	fileutil.CreateParentIfNotExist(filePath)
+	return os.WriteFile(filePath, data, 0644)
+}
+
+func readChkFile(filePath string) (*chk.Chunk, error) {
+	bytes, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+	chunk := chk.NewChunkWithBytes(bytes)
+	return chunk, nil
 }
