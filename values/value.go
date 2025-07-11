@@ -197,6 +197,9 @@ func (val Value) String() string {
 	if val.v == nil {
 		return "null"
 	}
+	if val.IsDouble() && val.v == math.Trunc(val.AsDouble()) {
+		return fmt.Sprintf("%v.0", val.v)
+	}
 	return fmt.Sprintf("%v", val.v)
 }
 
