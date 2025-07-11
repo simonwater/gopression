@@ -51,7 +51,7 @@ func chunkSerializeTest(t *testing.T) {
 	fmt.Printf("开始进行字节码序列化反序列化，字节码大小(KB): %d\n", chunkSize/1024)
 
 	start = time.Now()
-	fileName := "Chunks.xp"
+	fileName := "Chunks.pb"
 	filePath := fileutil.GetTestPath(ser_testDirectory, fileName)
 
 	err = writeChkFile(chunk, filePath)

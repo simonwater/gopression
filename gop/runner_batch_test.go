@@ -54,7 +54,7 @@ func TestBatchRunner_CompileChunk(t *testing.T) {
 	fmt.Printf("==========")
 
 	// 序列化字节码
-	fileName := "Chunks.xp"
+	fileName := "Chunks.pb"
 	filePath := fileutil.GetTestPath(gop_testDirectory, fileName)
 	err = writeChkFile(chunk, filePath)
 	require.NoError(t, err, "序列化字节码失败")
@@ -66,7 +66,7 @@ func TestBatchRunner_Chunk(t *testing.T) {
 	start := time.Now()
 
 	// 反序列化字节码
-	fileName := "Chunks.xp"
+	fileName := "Chunks.pb"
 	filePath := fileutil.GetTestPath(gop_testDirectory, fileName)
 	chunk, err := readChkFile(filePath)
 	require.NoError(t, err, "反序列化字节码失败")
