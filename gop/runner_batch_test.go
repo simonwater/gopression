@@ -29,7 +29,7 @@ func TestBatchRunner_IR(t *testing.T) {
 	require.NoError(t, err, "批量执行失败")
 
 	testdata.CheckValues(t, env, gop_formulaBatches)
-	fmt.Printf("==========")
+	fmt.Printf("==========\n")
 }
 
 // 测试编译+字节码执行
@@ -51,7 +51,7 @@ func TestBatchRunner_CompileChunk(t *testing.T) {
 
 	elapsed := time.Since(start)
 	fmt.Printf("总耗时: %s", elapsed)
-	fmt.Printf("==========")
+	fmt.Printf("==========\n")
 
 	// 序列化字节码
 	fileName := "Chunks.pb"
@@ -60,27 +60,22 @@ func TestBatchRunner_CompileChunk(t *testing.T) {
 	require.NoError(t, err, "序列化字节码失败")
 }
 
-// 测试字节码直接执行
-func TestBatchRunner_Chunk(t *testing.T) {
-	fmt.Printf("批量运算测试(字节码直接执行)\n")
+func TestBatchRunner_MultiChunks(t *testing.T) {
+	fmt.Printf("字节码直接执行\n")
 	start := time.Now()
-
 	// 反序列化字节码
 	fileName := "Chunks.pb"
 	filePath := fileutil.GetTestPath(gop_testDirectory, fileName)
 	chunk, err := readChkFile(filePath)
 	require.NoError(t, err, "反序列化字节码失败")
 
-	elapsed := time.Since(start)
-	fmt.Printf("完成从文件反序列化字节码。耗时: %s\n", elapsed)
-
-	runner := gop.NewGopRunner()
-	runner.SetTrace(true)
-	env := testdata.GetEnv(gop_formulaBatches)
-
-	_ = runner.RunChunk(chunk, env)
-	require.NoError(t, err, "执行字节码失败")
-
-	testdata.CheckValues(t, env, gop_formulaBatches)
+	for i := 0; i < 1; i++ {
+		runner := gop.NewGopRunner()
+		env := testdata.GetEnv(gop_formulaBatches)
+		_ = runner.RunChunk(chunk, env)
+		require.NoError(t, err, "执行字节码失败")
+		testdata.CheckValues(t, env, gop_formulaBatches)
+	}
+	fmt.Printf("完成。耗时: %s\n", time.Since(start))
 	fmt.Printf("==========\n")
 }

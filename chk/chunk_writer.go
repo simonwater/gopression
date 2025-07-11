@@ -74,7 +74,7 @@ func (cw *ChunkWriter) WriteCode(opCode OpCode) {
 }
 
 // AddConstant 添加常量到池中
-func (cw *ChunkWriter) AddConstant(value *values.Value) (int, error) {
+func (cw *ChunkWriter) AddConstant(value values.Value) (int, error) {
 	return cw.constPool.AddConst(value)
 }
 
@@ -86,7 +86,7 @@ func (cw *ChunkWriter) SetVariables(vars []string) {
 		index, exists := cw.constPool.GetConstIndex(varName)
 		if !exists {
 			value := values.NewStringValue(varName)
-			index, _ = cw.constPool.AddConst(&value)
+			index, _ = cw.constPool.AddConst(value)
 		}
 		cw.isVarConst.Set(index)
 	}

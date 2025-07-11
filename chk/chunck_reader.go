@@ -59,7 +59,7 @@ func (cr *ChunkReader) ReadOpCode() (OpCode, error) {
 }
 
 // ReadConst 读取指定索引的常量
-func (cr *ChunkReader) ReadConst(index int) (*values.Value, error) {
+func (cr *ChunkReader) ReadConst(index int) (values.Value, error) {
 	return cr.constPool.ReadConst(index)
 }
 

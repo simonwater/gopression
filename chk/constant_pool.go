@@ -9,7 +9,7 @@ import (
 
 // ConstantPool 常量池实现
 type ConstantPool struct {
-	constants []*values.Value
+	constants []values.Value
 	indexMap  map[string]int
 	tracer    *util.Tracer
 }
@@ -22,7 +22,7 @@ func NewConstantPool(capacity int, tracer *util.Tracer) *ConstantPool {
 	}
 
 	return &ConstantPool{
-		constants: make([]*values.Value, 0, initCap),
+		constants: make([]values.Value, 0, initCap),
 		indexMap:  make(map[string]int),
 		tracer:    tracer,
 	}
@@ -31,7 +31,7 @@ func NewConstantPool(capacity int, tracer *util.Tracer) *ConstantPool {
 // NewConstantPoolFromBytes 从字节数组创建常量池
 func NewConstantPoolFromBytes(data []byte, tracer *util.Tracer) (*ConstantPool, error) {
 	cp := &ConstantPool{
-		constants: make([]*values.Value, 0),
+		constants: make([]values.Value, 0),
 		indexMap:  make(map[string]int),
 		tracer:    tracer,
 	}
@@ -48,7 +48,7 @@ func NewConstantPoolFromBytes(data []byte, tracer *util.Tracer) (*ConstantPool, 
 		if err != nil {
 			return nil, err
 		}
-		cp.constants = append(cp.constants, &val)
+		cp.constants = append(cp.constants, val)
 	}
 	return cp, nil
 }
@@ -70,7 +70,7 @@ func (cp *ConstantPool) ToBytes() ([]byte, error) {
 }
 
 // AddConst 添加常量到池中，返回索引
-func (cp *ConstantPool) AddConst(value *values.Value) (int, error) {
+func (cp *ConstantPool) AddConst(value values.Value) (int, error) {
 	if err := cp.checkType(value); err != nil {
 		return -1, err
 	}
@@ -87,9 +87,9 @@ func (cp *ConstantPool) AddConst(value *values.Value) (int, error) {
 }
 
 // ReadConst 读取指定索引的常量
-func (cp *ConstantPool) ReadConst(index int) (*values.Value, error) {
+func (cp *ConstantPool) ReadConst(index int) (values.Value, error) {
 	if index < 0 || index >= len(cp.constants) {
-		return nil, errors.New("常量索引越界")
+		return values.NewNullValue(), errors.New("常量索引越界")
 	}
 	return cp.constants[index], nil
 }
@@ -101,18 +101,18 @@ func (cp *ConstantPool) GetConstIndex(constant string) (int, bool) {
 }
 
 // GetAllConsts 获取所有常量
-func (cp *ConstantPool) GetAllConsts() []*values.Value {
+func (cp *ConstantPool) GetAllConsts() []values.Value {
 	return cp.constants
 }
 
 // Clear 清空常量池
 func (cp *ConstantPool) Clear() {
-	cp.constants = make([]*values.Value, 0)
+	cp.constants = make([]values.Value, 0)
 	cp.indexMap = make(map[string]int)
 }
 
 // checkType 检查常量类型是否支持
-func (cp *ConstantPool) checkType(value *values.Value) error {
+func (cp *ConstantPool) checkType(value values.Value) error {
 	switch value.GetValueType() {
 	case values.Vt_Integer, values.Vt_Long, values.Vt_Float, values.Vt_Double, values.Vt_String, values.Vt_Boolean:
 		return nil

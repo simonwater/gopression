@@ -14,7 +14,7 @@ import (
 const STACK_MAX = 256
 
 type VM struct {
-	stack       [STACK_MAX]*values.Value
+	stack       [STACK_MAX]values.Value
 	stackTop    int
 	chunkReader *chk.ChunkReader
 	tracer      *util.Tracer
@@ -31,21 +31,21 @@ func (vm *VM) reset() {
 	vm.chunkReader = nil
 }
 
-func (vm *VM) push(value *values.Value) {
+func (vm *VM) push(value values.Value) {
 	vm.stack[vm.stackTop] = value
 	vm.stackTop++
 }
 
-func (vm *VM) pop() *values.Value {
+func (vm *VM) pop() values.Value {
 	vm.stackTop--
 	return vm.stack[vm.stackTop]
 }
 
-func (vm *VM) peek() *values.Value {
+func (vm *VM) peek() values.Value {
 	return vm.stack[vm.stackTop-1]
 }
 
-func (vm *VM) peekAt(distance int) *values.Value {
+func (vm *VM) peekAt(distance int) values.Value {
 	return vm.stack[vm.stackTop-1-distance]
 }
 
@@ -86,7 +86,7 @@ func (vm *VM) run(env env.Environment) ([]*ExResult, error) {
 		case chk.OP_END:
 			val := vm.pop()
 			result := &ExResult{
-				Value: val,
+				Value: &val,
 				State: OK,
 				Index: expOrder,
 			}
@@ -104,7 +104,7 @@ func (vm *VM) run(env env.Environment) ([]*ExResult, error) {
 
 		case chk.OP_NULL:
 			val := values.NewNullValue()
-			vm.push(&val)
+			vm.push(val)
 
 		case chk.OP_GET_GLOBAL:
 			name, err := vm.readString()
@@ -112,14 +112,14 @@ func (vm *VM) run(env env.Environment) ([]*ExResult, error) {
 				return results, err
 			}
 			val := env.GetOrDefault(name, values.NewNullValue())
-			vm.push(&val)
+			vm.push(val)
 
 		case chk.OP_SET_GLOBAL:
 			name, err := vm.readString()
 			if err != nil {
 				return results, err
 			}
-			env.Put(name, *vm.peek())
+			env.Put(name, vm.peek())
 
 		case chk.OP_GET_PROPERTY:
 			name, err := vm.readString()
@@ -132,7 +132,7 @@ func (vm *VM) run(env env.Environment) ([]*ExResult, error) {
 			}
 			instance := obj.AsInstance()
 			prop, _ := instance.Get(name)
-			vm.push(&prop)
+			vm.push(prop)
 
 		case chk.OP_SET_PROPERTY:
 			name, err := vm.readString()
@@ -145,7 +145,7 @@ func (vm *VM) run(env env.Environment) ([]*ExResult, error) {
 			}
 			value := vm.peek()
 			instance := obj.AsInstance()
-			instance.Set(name, *value)
+			instance.Set(name, value)
 
 		case chk.OP_ADD:
 			if err := vm.binaryOp(values.PLUS); err != nil {
@@ -266,34 +266,34 @@ func (vm *VM) callFunction(name string) error {
 	cnt := funcObj.Arity()
 	args := make([]values.Value, cnt)
 	for i := cnt - 1; i >= 0; i-- {
-		args[i] = *vm.pop()
+		args[i] = vm.pop()
 	}
 	result, err := funcObj.Call(args)
 	if err != nil {
 		return err
 	}
-	vm.push(&result)
+	vm.push(result)
 	return nil
 }
 
 func (vm *VM) binaryOp(tokenType values.TokenType) error {
 	b := vm.pop()
 	a := vm.pop()
-	result, err := values.BinaryOperate(*a, *b, tokenType)
+	result, err := values.BinaryOperate(a, b, tokenType)
 	if err != nil {
 		return err
 	}
-	vm.push(&result)
+	vm.push(result)
 	return nil
 }
 
 func (vm *VM) preUnaryOp(tokenType values.TokenType) error {
 	operand := vm.pop()
-	result, err := values.PreUnaryOperate(*operand, tokenType)
+	result, err := values.PreUnaryOperate(operand, tokenType)
 	if err != nil {
 		return err
 	}
-	vm.push(&result)
+	vm.push(result)
 	return nil
 }
 
@@ -305,10 +305,10 @@ func (vm *VM) readString() (string, error) {
 	return value.AsString(), nil
 }
 
-func (vm *VM) readConstant() (*values.Value, error) {
+func (vm *VM) readConstant() (values.Value, error) {
 	index, err := vm.readInt()
 	if err != nil {
-		return nil, err
+		return values.NewNullValue(), err
 	}
 	return vm.chunkReader.ReadConst(index)
 }

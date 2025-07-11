@@ -269,7 +269,7 @@ func (c *OpCodeCompiler) emitConstant(value *values.Value) {
 
 // makeConstant 创建常量并返回索引
 func (c *OpCodeCompiler) makeConstant(value *values.Value) int {
-	index, err := c.chunkWriter.AddConstant(value)
+	index, err := c.chunkWriter.AddConstant(*value)
 	if err != nil {
 		panic("创建常量失败: " + err.Error())
 	}

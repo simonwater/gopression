@@ -89,7 +89,7 @@ func (d *Disassembler) readConstant() (values.Value, error) {
 		return values.NewNullValue(), err
 	}
 	v, err := d.chunkReader.ReadConst(int(index))
-	return *v, err
+	return v, err
 }
 
 func (d *Disassembler) readCode() (chk.OpCode, error) {
